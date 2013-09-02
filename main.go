@@ -23,7 +23,6 @@ var (
 	funcname     = flag.String("func", "", "Optional name of the function to generate.")
 	prefix       = flag.String("prefix", "", "Optional path prefix to strip off map keys and function names.")
 	uncompressed = flag.Bool("uncompressed", false, "The specified resource will /not/ be GZIP compressed when this flag is specified. This alters the generated output code.")
-	nomemcopy    = flag.Bool("nomemcopy", false, "Use a .rodata hack to get rid of unnecessary memcopies. Refer to the documentation to see what implications this carries.")
 	toc          = flag.Bool("toc", false, "Generate a table of contents for this and other files. The input filepath becomes the map key. This option is only useable in non-pipe mode.")
 	version      = flag.Bool("version", false, "Display version information.")
 	regFuncName  = regexp.MustCompile(`[^a-zA-Z0-9_]`)
@@ -33,7 +32,7 @@ func main() {
 	parseArgs()
 
 	if pipe {
-		translate(os.Stdin, os.Stdout, *pkgname, *funcname, *uncompressed, *nomemcopy)
+		translate(os.Stdin, os.Stdout, *pkgname, *funcname, *uncompressed)
 		return
 	}
 
@@ -54,7 +53,7 @@ func main() {
 	defer fd.Close()
 
 	// Translate binary to Go code.
-	translate(fs, fd, *pkgname, *funcname, *uncompressed, *nomemcopy)
+	translate(fs, fd, *pkgname, *funcname, *uncompressed)
 
 	// Append the TOC init function to the end of the output file and
 	// write the `bindata-toc.go` file, if applicable.
